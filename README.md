@@ -8,3 +8,5 @@ All html files are under the public folder. Right now, I have finished the basic
 I used node.js, mongoDB, javascript, html, and css. All you need to do is go to localhost:3000 to begin to see the site. You will still need to install any node and mongoDB if you don't have it.
 
 "npm run dev" is how you will run the program in development mode.
+}
+}
