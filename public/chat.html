@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Casually chat with other swimmers">
+    <meta name="keywords" content="swim, chat, social">
+    <meta name="author" content="Kevin Song">
+
+    <title>SwimChats | Open Chat</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body style="background: url('../img/background.png');">
+    <header>
+        <div class="container">
+            <div id="branding">
+                <h1><span class="highlight">Swim</span>Chats</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li> <a href="index.html">Home</a></li>
+                    <li class="current"> <a href="chat.html">Chat</a></li>
+                    <li> <a href="tips.html">Tips</a></li>
+                    <li> <a href="about.html">About</a></li>
+                    <li> <a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div id="containerC" style="padding: 10px">
+        <div id="namesWrapper">
+            <h2>Open Chat</h2>
+            <p>Choose a username:</p>
+            <div id="error"></div>
+            <form id=usernameForm>
+                <input type="text" size="35" id=username style="font-size: 18px">
+                <input type="submit" value="Submit" style="font-size: 18px">
+            </form>
+        </div>
+
+        <div id="mainWrapper">
+            <h2>Open Chat</h2>
+            <div id=chatWrapper>
+                <div id="chatWindow" style="overflow-y: scroll; height:400px;"></div>
+                <form id="messageForm">
+                    <input type="text" size="35" id="message" placeholder="Say Something..." style="font-size: 20px">
+                    <input type="submit" value="Submit" style="font-size: 20px">
+                </form>
+            </div>
+
+            <div id="userWrapper" style="overflow-y: scroll; height:400px;">
+                <div id="users"></div>
+            </div>
+
+            <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+            <script src="/socket.io/socket.io.js"></script>
+            <script>
+                $(function () {
+                    var socket = io.connect();
+                    var $messageForm = $('#messageForm');
+                    var $message = $('#message');
+                    var $chat = $('#chatWindow');
+                    var $usernameForm = $('#usernameForm');
+                    var $users = $('#users');
+                    var $username = $('#username');
+                    var $error = $('#error');
+
+                    $usernameForm.submit(function (e) {
+                        e.preventDefault();
+                        socket.emit('new user', $username.val(), function (data) {
+                            if (data) {
+                                $('#namesWrapper').hide();
+                                $('#mainWrapper').show();
+                            } else {
+                                $error.html('Username is taken');
+                            }
+                        });
+                    });
+
+                    socket.on('usernames', function (data) {
+                        var html = '';
+                        for (i = 0; i < data.length; i++) {
+                            html += data[i] + '<br>';
+                        }
+                        $users.html(html);
+                    });
+
+                    $messageForm.submit(function (e) {
+                        e.preventDefault();
+                        socket.emit('send message', $message.val());
+                        $message.val('');
+                    });
+
+                    socket.on('new message', function (data) {
+                        $chat.append('<strong>' + data.user + '</strong>: ' + data.msg + '<br>');
+                    });
+                });
+            </script>
+</body>
+
+</html>
